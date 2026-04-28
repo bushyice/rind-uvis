@@ -1,1 +1,0 @@
-{"version":3,"file":"static/css/main.c65de682.css","mappings":"AAAA,WAEE,YAAa,CADb,WAEF,CAEA,KACE,QAAS,CACT,SACF","sources":["styles.css"],"sourcesContent":[".container {\n  width: 100vw;\n  height: 100vh;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n}\n"],"names":[],"sourceRoot":""}
