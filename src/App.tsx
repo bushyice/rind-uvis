@@ -216,95 +216,16 @@ function stringifyTOML(items: { section: string, data: any }[] | null | undefine
 
 // --- Constants & Registry ---
 
+
 const INITIAL_UNITS: Record<string, string> = {
-  else: `[[service]]
-name = "three"
-start-on = ["my_state"]
-on-start = [{ signal = "else@my_signal", payload = "hi" }]
-run.exec = "/usr/bin/example-active"
-run.args = ["arg1", "arg2"]
-restart = false
-transport = ""
-
-[[service]]
-name = "four"
-start-on = ["my_signal"]
-run.exec = "/usr/bin/example-inactive"
-run.args = ["arg1", "arg2"]
-on-start = [{ timer = "else@timeout_four" }]
-singleton = true
-
-[[state]]
-name = "my_state"
-payload = "json"
-branch = ["id"]
-
-[[state]]
-name = "some_state"
-payload = "string"
-
-[[socket]]
-name = "four_starter"
-type = "uds"
-lifecycle = "owned"
-listen = "/var/sock/my.sock"
-owner = "else@four"
-
-[[signal]]
-name = "my_signal"
-payload = "string"
-
-[[signal]]
-name = "my_signal_2"
-payload = "json"
-
-[[timer]]
-name = "timeout_four"
-duration = "5s"
-finish = [{ service = "else@four", stop = true }]`,
-  example: `[[service]]
-name = "example-active"
-run = { exec = "/usr/bin/example-active", args = ["arg1", "arg2"] }
-restart = false
-
-[[service]]
-name = "example-inactive"
-run.exec = "/usr/bin/example-inactive"
-run.args = ["arg1", "arg2"]
-restart = { max_retries = 5 }
-
-[[themodel]]
-name = "example"
-data = "mydata"`,
-  init: `[[mount]]
-source = "proc"
-target = "/proc"
-fstype = "proc"
-create = true
-
-[[mount]]
-source = "sysfs"
-target = "/sys"
-fstype = "sysfs"
-create = true
-
-[[mount]]
-source = "devtmpfs"
-target = "/dev"
-fstype = "devtmpfs"
-create = true
-
-[[mount]]
-source = "tmpfs"
-target = "/tmp"
-fstype = "tmpfs"
-create = true`,
-  networking: `[[network]]
-name = "eth0"
-method = "dhcp"`,
   rind: `[[state]]
 name = "active"
 payload = "string"
+
+[[state]]
+name = "login_required"
+payload = "none"
+activate-on-none = ["rind@user_session"]
 
 [[state]]
 name = "user_session"
@@ -349,91 +270,33 @@ branch = ["name"]
 [[state]]
 name = "net-dns_ready"
 payload = "none"`,
-  something: `[[service]]
-name = "one"
-run.exec = "/usr/bin/example-active"
-run.args = ["arg1", "arg2"]
-restart = false
+  rind_mounting: `[[mount]]
+source = "proc"
+target = "/proc"
+fstype = "proc"
+create = true
 
-[[service]]
-name = "two"
-run.exec = "/usr/bin/example-inactive"
-run.args = ["arg1", "arg2"]`,
-  test: `[[service]]
-name = "test"
-run.exec = "/bin/tcp"
-run.args = ["makano-test"]
-space = "user"
-user-source = { state = "rind@user_session", username-field = "username" }
-start-on = [{ state = "rind@user_session" }]
+[[mount]]
+source = "sysfs"
+target = "/sys"
+fstype = "sysfs"
+create = true
 
-[[service]]
-name = "something"
-run.exec = "/bin/tcp"
-run.args = ["makano-test"]
-run.env = { PORT = "4433" }
-space = "user"
-user-source = { state = "rind@user_session", username-field = "username" }
+[[mount]]
+source = "devtmpfs"
+target = "/dev"
+fstype = "devtmpfs"
+create = true
 
-[[service]]
-name = "many"
-run.variable = "someservice"
-space = "user"
-start-on = [{ state = "rind@user_session" }, { state = "rind@net-configured" }]
-user-source = { state = "rind@user_session", username-field = "username" }
-
-[[variable]]
-name = "someservice"
-default = { exec = "/bin/tcp", args = ["makano-test"], env = { PORT = "4533" } }
-
-[[signal]]
-name = "thething"
-payload = "string"
-
-[[service]]
-name = "ipcs"
-run.exec = "/bin/ipc_so"
-run.args = ["makano-test"]
-start-on = [{ signal = "test@thething" }]
-
-[[socket]]
-name = "ipcs_s"
-type = "uds"
-listen = "/var/sock/some.sock"
-owner = "test@ipcs"
-start-on = [{ state = "rind@net-configured" }]
-trigger = [{ signal = "test@thething", payload = "yeaaaaaaaah" }]`,
-  tp_demo: `[[service]]
-name = "uds_echo"
-run.exec = "/usr/bin/example-uds"
-run.args = ["--mode", "uds"]
-restart = false
-transport = { id = "uds", options = ["detached=true"] }
-
-[[service]]
-name = "env_consumer"
-run.exec = "/usr/bin/example-active"
-run.args = ["env-demo"]
-restart = false
-transport = { id = "env", options = ["DEMO_STATE=state:tp_demo@transport_state"] }
-
-[[service]]
-name = "args_consumer"
-run.exec = "/usr/bin/example-active"
-run.args = ["args-demo"]
-restart = false
-transport = { id = "args", options = ["--from-state", "state:tp_demo@transport_state"] }
-
-[[state]]
-name = "transport_state"
-payload = "string"
-subscribers = [{ id = "uds", options = ["detached=true"], permissions = [0] }]
-
-[[signal]]
-name = "demo_ping"
-payload = "string"
-subscribers = ["uds"]`,
-  tr_demo: `[[service]]
+[[mount]]
+source = "tmpfs"
+target = "/tmp"
+fstype = "tmpfs"
+create = true`,
+  rind_networking: `[[network]]
+name = "eth0"
+method = "dhcp"`,
+  rind_user: `[[service]]
 name = "user_session"
 run.exec = "/usr/bin/example-active"
 run.args = ["user-session"]
@@ -454,27 +317,7 @@ run.exec = "/usr/bin/user_shell"
 run.args = []
 restart = true
 start-on = [{ state = "rind@user_session" }]
-transport = { id = "env", options = ["RIND_USER_ACTIVE=state:rind@user_session"] }
-
-[[service]]
-name = "niri"
-run.exec = "/usr/bin/example-active"
-run.args = ["niri"]
-restart = false
-start-on = [{ state = "tr_demo@niri_active" }]
-branching = { enabled = true, source-state = "tr_demo@niri_active", key = "tty", max-instances = 16 }
-
-[[state]]
-name = "login_required"
-payload = "string"
-activate-on-none = ["rind@user_session"]
-auto-payload = { eval = "/bin/echo", args = ["/dev/tty1"] }
-
-[[state]]
-name = "niri_active"
-payload = "json"
-branch = ["tty:seat"]
-after = ["rind@user_session"]`,
+transport = { id = "env", options = ["RIND_USER_ACTIVE=state:rind@user_session"] }`
 };
 
 const VALUE_TYPES: Record<string, any> = {
