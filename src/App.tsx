@@ -296,20 +296,14 @@ create = true`,
   rind_networking: `[[network]]
 name = "eth0"
 method = "dhcp"`,
-  rind_user: `[[service]]
-name = "user_session"
-run.exec = "/usr/bin/example-active"
-run.args = ["user-session"]
-restart = false
-start-on = [{ state = "tr_demo@user_active" }]
-
+  rind_user: `
 [[service]]
 name = "user_login"
 run.exec = "/usr/bin/user_login"
 run.args = []
 restart = false
-start-on = [{ state = "tr_demo@login_required" }]
-transport = { id = "env", options = ["RIND_LOGIN_TTY=state:tr_demo@login_required"] }
+start-on = [{ state = "rind@login_required" }]
+transport = { id = "env", options = ["RIND_LOGIN_TTY=state:rind@login_required"] }
 
 [[service]]
 name = "user_shell"
@@ -495,7 +489,7 @@ function SyncManager({
 
 export default function App() {
   const graphRef = useRef<any>(null);
-  const [selectedUnit, setSelectedUnit] = useState<string>("else");
+  const [selectedUnit, setSelectedUnit] = useState<string>("rind");
   const [unitTomls, setUnitTomls] = useState<Record<string, string>>(() => {
     const saved = localStorage.getItem("rind-units-store-v4");
     if (saved) {
