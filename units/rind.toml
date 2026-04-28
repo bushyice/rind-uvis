@@ -1,0 +1,48 @@
+
+[[state]]
+name = "active"
+payload = "string"
+
+[[state]]
+name = "user_session"
+payload = "json"
+branch = ["session_id"]
+
+[[state]]
+name = "user_auto_login"
+payload = "json"
+branch = ["tty"]
+
+[[signal]]
+name = "activate"
+payload = "string"
+
+[[signal]]
+name = "deactivate"
+payload = "string"
+
+[[signal]]
+name = "request_login"
+payload = "json"
+
+[[signal]]
+name = "request_logout"
+payload = "json"
+
+[[state]]
+name = "net-interface"
+payload = "json"
+branch = ["name"]
+
+[[state]]
+name = "online"
+payload = "none"
+
+[[state]]
+name = "net-configured"
+payload = "json"
+branch = ["name"]
+
+[[state]]
+name = "net-dns_ready"
+payload = "none"
