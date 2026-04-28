@@ -146,7 +146,7 @@ function parseTOML(tomlText: string | null | undefined) {
     } else if (line.includes("=")) {
       const [key, ...rest] = line.split("=");
       const valRaw = rest.join("=").trim();
-      
+
       const parseVal = (v: string): any => {
         v = v.trim();
         if (v.startsWith('"')) return v.slice(1, -1);
@@ -477,13 +477,8 @@ branch = ["tty:seat"]
 after = ["rind@user_session"]`,
 };
 
-const COLORS: Record<string, string> = {
-  else: "#ef4444", example: "#f59e0b", init: "#10b981", networking: "#06b6d4",
-  rind: "#3b82f6", something: "#8b5cf6", test: "#d946ef", tp_demo: "#f43f5e", tr_demo: "#6366f1",
-};
-
 const VALUE_TYPES: Record<string, any> = {
-  unit: { name: "Unit", color: "#ffffff" },
+  unit: { name: "Unit", color: "#6366f1" },
   service: { name: "Service", color: "#3b82f6" },
   signal: { name: "Signal", color: "#ef4444" },
   state: { name: "State", color: "#10b981" },
@@ -558,22 +553,22 @@ const isNodesEqual = (a: any[], b: any[]) => {
 const isEdgesEqual = (a: any[], b: any[]) => {
   if (a.length !== b.length) return false;
   const cleanEdge = (e: any) => ({ id: e.id, source: e.source, target: e.target, sourceHandle: e.sourceHandle, targetHandle: e.targetHandle });
-  return JSON.stringify(a.map(cleanEdge).sort((x, y) => x.id.localeCompare(y.id))) === 
-         JSON.stringify(b.map(cleanEdge).sort((x, y) => x.id.localeCompare(y.id)));
+  return JSON.stringify(a.map(cleanEdge).sort((x, y) => x.id.localeCompare(y.id))) ===
+    JSON.stringify(b.map(cleanEdge).sort((x, y) => x.id.localeCompare(y.id)));
 };
 
 const isDeepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
-function SyncManager({ 
-  appNodes, 
-  appEdges, 
-  onConnect, 
-  onEdgesDelete, 
+function SyncManager({
+  appNodes,
+  appEdges,
+  onConnect,
+  onEdgesDelete,
   onNodesDelete,
   onNodesChange
-}: { 
-  appNodes: any[], 
-  appEdges: any[], 
+}: {
+  appNodes: any[],
+  appEdges: any[],
   onConnect: (params: any) => void,
   onEdgesDelete: (edges: any[]) => void,
   onNodesDelete: (nodes: any[]) => void,
@@ -618,10 +613,10 @@ function SyncManager({
         // System edges start with 'e-', 'e-t-', or 'owner-'
         const isSystemEdge = newEdge.id.startsWith("e-") || newEdge.id.startsWith("owner-");
         if (!isSystemEdge && newEdge.source && newEdge.target) {
-          onConnect({ 
-            source: newEdge.source, 
-            target: newEdge.target, 
-            targetHandle: newEdge.targetHandle 
+          onConnect({
+            source: newEdge.source,
+            target: newEdge.target,
+            targetHandle: newEdge.targetHandle
           });
         }
       });
@@ -704,17 +699,17 @@ export default function App() {
     setUnitTomls(prev => {
       const currentSrc = prev[selectedUnit] || "";
       const items = parseTOML(currentSrc);
-      
+
       let name = `new_${type}`;
       let counter = 1;
       while (items.some(i => (i.data.name || i.data.target) === name)) {
         name = `new_${type}_${counter++}`;
       }
-      
+
       let template = TEMPLATES[type].trim();
       template = template.replace(/name = ".*"/, `name = "${name}"`);
       template = template.replace(/target = ".*"/, `target = "${name}"`);
-      
+
       return {
         ...prev,
         [selectedUnit]: currentSrc.trim() + "\n\n" + template + "\n"
@@ -861,7 +856,7 @@ export default function App() {
         const name = item.name || item.target || "unnamed";
         const id = `${unitName}@${name}`;
         const node = {
-          id, type, 
+          id, type,
           position: { x: unitIdx * 600, y: y * 250 },
           data: { ...item, label: id },
         };
@@ -910,7 +905,7 @@ export default function App() {
     if (!target || !targetHandle || target.startsWith("unit:") || !target.includes("@")) return;
     const [targetUnit, targetName] = target.split("@");
     if (!targetUnit || !targetName) return;
-    
+
     setUnitTomls(prev => {
       if (!prev[targetUnit]) return prev;
       const items = parseTOML(prev[targetUnit]);
@@ -939,7 +934,7 @@ export default function App() {
       if (!target || !targetHandle || target.startsWith("unit:") || !target.includes("@")) return;
       const [targetUnit, targetName] = target.split("@");
       if (!targetUnit || !targetName) return;
-      
+
       setUnitTomls(prev => {
         if (!prev[targetUnit]) return prev;
         const items = parseTOML(prev[targetUnit]);
@@ -984,7 +979,7 @@ export default function App() {
       if (change.type === 'data') {
         const { id, data } = change;
         if (!id) return;
-        
+
         if (id.startsWith("unit:")) {
           const oldName = id.replace("unit:", "");
           const newName = data.name;
@@ -1027,9 +1022,9 @@ export default function App() {
             <span style={{ fontSize: "10px", color: "#444" }}>v4.0</span>
           </div>
           <div className="unit-input-group">
-            <input 
+            <input
               className="unit-input"
-              value={newUnitName} 
+              value={newUnitName}
               onChange={e => setNewUnitName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
               placeholder="new_unit_name"
               onKeyDown={e => e.key === "Enter" && handleAddUnit()}
@@ -1038,8 +1033,8 @@ export default function App() {
           </div>
           <div className="unit-tabs">
             {Object.keys(unitTomls).sort().map(u => (
-              <div 
-                key={u} 
+              <div
+                key={u}
                 className={`unit-tab ${selectedUnit === u ? "active" : ""}`}
               >
                 <span onClick={() => setSelectedUnit(u)} style={{ flex: 1 }}>
@@ -1068,7 +1063,7 @@ export default function App() {
           <div className="editor-toolbar">
             <span className="editor-label">{selectedUnit}.toml</span>
             {selectedUnit !== "rind" && (
-              <select 
+              <select
                 className="template-select"
                 onChange={(e) => {
                   handleAddComponent(e.target.value);
@@ -1094,12 +1089,12 @@ export default function App() {
       <main className="main-content">
         <ReactFlowProvider>
           <GraphConfigProvider defaultConfig={config}>
-            <NodeGraphEditor 
+            <NodeGraphEditor
               ref={graphRef}
-              defaultNodes={nodes} 
+              defaultNodes={nodes}
               defaultEdges={edges}
             >
-              <SyncManager 
+              <SyncManager
                 appNodes={nodes}
                 appEdges={edges}
                 onConnect={onConnect}
